@@ -1,0 +1,29 @@
+boltffi_bindgen/src/render/dart/snapshots/boltffi_bindgen__render__dart__templates__tests__snapshot_record_with_placeholder_ctors_and_methods.snap
+  ai_agent 1-79
+boltffi_bindgen/src/render/dart/snapshots/boltffi_bindgen__render__dart__templates__tests__snapshot_record_blittable_point_fields_only.snap
+  ai_agent 1-71
+examples/demo/boltffi.dart.ci.toml
+  s_f37dd148658949::t_a79404956b00b1 1-3
+boltffi_bindgen/src/render/dart/templates/render_dart/record.txt
+  s_f37dd148658949::t_b455a17f3f6874 81,83,87
+boltffi_bindgen/src/render/dart/templates.rs
+  s_f37dd148658949::t_d86c79dbb712d3 39-204
+boltffi_bindgen/src/render/dart/snapshots/boltffi_bindgen__render__dart__templates__tests__snapshot_native_functions_simple.snap
+  ai_agent 1-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "ee536927176e72be5695d11b79a6fe83fb4b2580",
+  "prompts": {},
+  "sessions": {
+    "s_f37dd148658949": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "972d58f6-a417-42f5-9312-dddd746e9aa1",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Glenn Sonna <kenpachi.os@gmail.com>"
+    }
+  }
+}
