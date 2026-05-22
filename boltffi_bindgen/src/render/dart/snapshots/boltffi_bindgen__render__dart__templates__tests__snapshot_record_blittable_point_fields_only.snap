@@ -1,0 +1,71 @@
+---
+source: boltffi_bindgen/src/render/dart/templates.rs
+assertion_line: 112
+expression: template.render().unwrap()
+---
+
+final class _$Point$Struct extends $$ffi.Struct {
+  @$$ffi.Double()
+  external double x;
+
+  @$$ffi.Double()
+  external double y;
+}
+
+final class Point {
+  double x;
+  double y;
+
+  Point({
+    required this.x,
+    required this.y,
+  });
+
+  factory Point._m$wireDecode(_$$WireReader _p$reader) {
+    return Point(
+      x: _p$reader.readF64(),
+      y: _p$reader.readF64(),
+    );
+  }
+
+  void _m$wireEncode(_$$WireWriter _p$writer) {
+    _p$writer.writeF64(x);
+    _p$writer.writeF64(y);
+  }
+
+  // static const _k$offsetX = 0;
+  // static const _k$offsetY = 8;
+  // static const _k$structSize = 16;
+  static final _k$structSize = $$ffi.sizeOf<_$Point$Struct>();
+
+  void _m$blittableEncode(_$$WireWriter _p$writer) {
+    final ref = _p$writer.getCurrPtr<_$Point$Struct>().ref;
+    _p$writer._offset += _k$structSize;
+    ref.x = x;
+    ref.y = y;
+  }
+
+  factory Point._m$fromStruct(_$Point$Struct _p$struct) {
+    return Point(
+      x: _p$struct.x,
+      y: _p$struct.y,
+    );
+  }
+
+  factory Point._m$blittableDecodeFromPtrLen($$ffi.Pointer<$$ffi.Uint8> _p$ptr, int _p$len) {
+    if (_p$len != _k$structSize) {
+      throw _$$FFIException(-1, "BlittbleDecodeFromPtrLenError(Point): expected pointer length (${_p$len}) to be equal to struct size (${_k$structSize})");
+    }
+
+    return Point._m$fromStruct(_p$ptr.cast<_$Point$Struct>().ref);
+  }
+
+  _$Point$Struct _m$toStruct() {
+    final l$writer = _$$WireWriter(_k$structSize);
+    final ref = l$writer._ptr.cast<_$Point$Struct>().ref;
+    l$writer._offset += _k$structSize;
+    ref.x = x;
+    ref.y = y;
+    return ref;
+  }
+}

@@ -1,0 +1,38 @@
+---
+source: boltffi_bindgen/src/render/dart/templates.rs
+assertion_line: 202
+expression: template.render().unwrap()
+---
+final class _$$Native {
+  @$$ffi.Native<
+    $$ffi.Int32 Function(
+      $$ffi.Int32,
+      $$ffi.Int32,
+    )
+  >(isLeaf: true)
+  external static int boltffi_add(
+    int a,
+    int b,
+  );
+
+  @$$ffi.Native<
+    $$ffi.Double Function(
+      $$ffi.Double,
+    )
+  >(isLeaf: true)
+  external static double boltffi_negate(
+    double x,
+  );
+
+  @$$ffi.Native<$$ffi.Void Function(_$$FFIString)>()
+  external static void boltffi_free_string(_$$FFIString s);
+
+  @$$ffi.Native<$$ffi.Void Function(_$$FFIBuf)>()
+  external static void boltffi_free_buf(_$$FFIBuf buf);
+
+  @$$ffi.Native<_$$FFIStatus Function($$ffi.Pointer<_$$FFIString>)>()
+  external static _$$FFIStatus boltffi_last_error_message($$ffi.Pointer<_$$FFIString> out);
+
+  @$$ffi.Native<$$ffi.Void Function()>()
+  external static void boltffi_clear_last_error();
+}

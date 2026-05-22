@@ -78,24 +78,12 @@ final class {{ record.name }}{% if record.is_error %} implements Exception{% end
 {%- for ctor in record.constructors %}
 {%- match ctor.kind %}
 {% when super::DartConstructorKind::Default %}
-  factory {{ record.name }}(
-{%- for param in ctor.params %}
-    {{ param.ty.dart_type() }} {{ param.name }},
-{%- endfor %}
-  ) {}
+  // TODO(boltffi/dart): factory {{ record.name }}({% for param in ctor.params %}{{ param.ty.dart_type() }} {{ param.name }}{% if !loop.last %}, {% endif %}{% endfor %}) — not yet implemented
 {% when super::DartConstructorKind::Named with { name: ctor_name } %}
-  factory {{ record.name }}.{{ ctor_name }}(
-{%- for param in ctor.params %}
-    {{ param.ty.dart_type() }} {{ param.name }},
-{%- endfor %}
-  ) {}
+  // TODO(boltffi/dart): factory {{ record.name }}.{{ ctor_name }}({% for param in ctor.params %}{{ param.ty.dart_type() }} {{ param.name }}{% if !loop.last %}, {% endif %}{% endfor %}) — not yet implemented
 {% endmatch -%}
 {% endfor -%}
 {%- for meth in record.methods %}
-  {{ meth.ret_ty.dart_type() }} {{ meth.name }}(
-{%- for param in meth.params %}
-    {{ param.ty.dart_type() }} {{ param.name }},
-{%- endfor %}
-  ) {}
+  // TODO(boltffi/dart): {{ meth.ret_ty.dart_type() }} {{ meth.name }}({% for param in meth.params %}{{ param.ty.dart_type() }} {{ param.name }}{% if !loop.last %}, {% endif %}{% endfor %}) — not yet implemented
 {% endfor -%}
 }

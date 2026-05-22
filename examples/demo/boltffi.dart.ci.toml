@@ -1,0 +1,3 @@
+[targets.dart]
+enabled = true
+native_architectures = ["macos:arm64"]
