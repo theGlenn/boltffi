@@ -1,0 +1,21 @@
+.gitignore
+  s_f37dd148658949::t_9565008a026681 2
+examples/platforms/dart/test/demo_test.dart
+  s_f37dd148658949::t_dff4c68817f7ce 1-7,11-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "93437d8026104ec350681d812048e3512d1b637f",
+  "prompts": {},
+  "sessions": {
+    "s_f37dd148658949": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "972d58f6-a417-42f5-9312-dddd746e9aa1",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Glenn Sonna <kenpachi.os@gmail.com>"
+    }
+  }
+}
