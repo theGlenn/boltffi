@@ -1,0 +1,19 @@
+examples/platforms/dart/.gitignore
+  s_f37dd148658949::t_e9a16572f80bbe 4-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "b7072aca6cfabb1ff9b2bfda3e58dfa5245cc8f9",
+  "prompts": {},
+  "sessions": {
+    "s_f37dd148658949": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "972d58f6-a417-42f5-9312-dddd746e9aa1",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Glenn Sonna <kenpachi.os@gmail.com>"
+    }
+  }
+}
