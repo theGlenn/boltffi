@@ -1,0 +1,20 @@
+enum {{ enum_def.name }} {
+{%- for variant in enum_def.variants %}
+  {{ variant.name }}({{ enum_def.discriminant_literal(variant.discriminant) }}){% if !loop.last %},{% else %};{% endif %}
+{%- endfor %}
+
+  const {{ enum_def.name }}(this.value);
+
+  final int value;
+
+  static {{ enum_def.name }} fromValue(int value) {
+    return {{ enum_def.name }}.values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw _$$FFIException(-1, "Unknown {{ enum_def.name }} value: $value"),
+    );
+  }
+
+  void _m$wireEncode(_$$WireWriter _p$writer) {
+    _p$writer.{{ enum_def.tag_write_method() }}(value);
+  }
+}

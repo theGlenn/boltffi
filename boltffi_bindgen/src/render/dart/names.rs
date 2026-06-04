@@ -32,6 +32,11 @@ impl NamingConvention {
         Self::escape_keyword(&converted)
     }
 
+    pub fn enum_value_name(name: &str) -> String {
+        let converted = name.to_lower_camel_case();
+        Self::escape_keyword(&converted)
+    }
+
     pub fn priv_const_name(name: &str) -> String {
         let converted = name.to_lower_camel_case();
         format!("_k${}", converted)

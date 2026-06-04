@@ -370,9 +370,55 @@ pub struct DartCustomType {
     pub ty: DartType,
 }
 
+/// How a Dart enum is rendered.
+///
+/// Only [`CStyle`](DartEnumKind::CStyle) is emitted as real, working code today.
+/// Data-carrying and error enums fall back to a compile-but-throw placeholder
+/// until full sealed-class codegen lands (Phase C.2).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DartEnumKind {
+    /// Payload-free enum with an integer tag. Emitted as a Dart `enum`.
+    CStyle,
+    /// Data-carrying enum (non-error). Emitted as a placeholder class.
+    Sealed,
+    /// Error enum (any repr). Emitted as a placeholder class implementing Exception.
+    Error,
+}
+
+#[derive(Debug, Clone)]
+pub struct DartEnumVariant {
+    pub name: String,
+    pub discriminant: i128,
+    pub doc: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct DartEnum {
+    pub name: String,
+    pub kind: DartEnumKind,
+    pub tag_type: PrimitiveType,
+    pub variants: Vec<DartEnumVariant>,
+    pub doc: Option<String>,
+}
+
+impl DartEnum {
+    pub fn tag_write_method(&self) -> &'static str {
+        super::emit::primitive_write_method(self.tag_type)
+    }
+
+    pub fn is_error(&self) -> bool {
+        matches!(self.kind, DartEnumKind::Error)
+    }
+
+    pub fn discriminant_literal(&self, discriminant: &i128) -> String {
+        discriminant.to_string()
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct DartLibrary {
     pub custom_types: Vec<DartCustomType>,
     pub native: DartNative,
     pub records: Vec<DartRecord>,
+    pub enums: Vec<DartEnum>,
 }

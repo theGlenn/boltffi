@@ -1,14 +1,14 @@
 use crate::{
     ir::{
         AbiCall, AbiContract, AbiParam, AbiRecord, AbiType, CallId, ConstructorDef, CustomTypeDef,
-        FfiContract, FieldDef, FieldName, FieldReadOp, FunctionId, MethodDef, OffsetExpr, ParamDef,
-        ReadOp, ReadSeq, RecordDef, RecordId, WriteOp, WriteSeq,
+        EnumDef, EnumRepr, FfiContract, FieldDef, FieldName, FieldReadOp, FunctionId, MethodDef,
+        OffsetExpr, ParamDef, ReadOp, ReadSeq, RecordDef, RecordId, WriteOp, WriteSeq,
     },
     render::dart::{
         DartBlittableField, DartBlittableLayout, DartConstructor, DartConstructorKind,
-        DartCustomType, DartFunction, DartFunctionParam, DartLibrary, DartNative,
-        DartNativeFunction, DartNativeFunctionParam, DartNativeType, DartRecord, DartRecordField,
-        DartType, NamingConvention,
+        DartCustomType, DartEnum, DartEnumKind, DartEnumVariant, DartFunction, DartFunctionParam,
+        DartLibrary, DartNative, DartNativeFunction, DartNativeFunctionParam, DartNativeType,
+        DartRecord, DartRecordField, DartType, NamingConvention,
     },
 };
 
@@ -238,6 +238,44 @@ impl<'a> DartLowerer<'a> {
         }
     }
 
+    fn lower_enum(&self, enumeration: &EnumDef) -> DartEnum {
+        let name = NamingConvention::class_name(enumeration.id.as_str());
+
+        // Error enums (any repr) and data-carrying enums are not yet fully
+        // implemented; they fall back to a placeholder class. Only payload-free
+        // C-style enums emit real Dart `enum` code today.
+        let (tag_type, kind, variants) = match &enumeration.repr {
+            EnumRepr::CStyle { tag_type, variants } if !enumeration.is_error => {
+                let variants = variants
+                    .iter()
+                    .map(|variant| DartEnumVariant {
+                        name: NamingConvention::enum_value_name(variant.name.as_str()),
+                        discriminant: variant.discriminant,
+                        doc: variant.doc.clone(),
+                    })
+                    .collect();
+                (*tag_type, DartEnumKind::CStyle, variants)
+            }
+            EnumRepr::CStyle { tag_type, .. } => (*tag_type, DartEnumKind::Error, Vec::new()),
+            EnumRepr::Data { tag_type, .. } => {
+                let kind = if enumeration.is_error {
+                    DartEnumKind::Error
+                } else {
+                    DartEnumKind::Sealed
+                };
+                (*tag_type, kind, Vec::new())
+            }
+        };
+
+        DartEnum {
+            name,
+            kind,
+            tag_type,
+            variants,
+            doc: enumeration.doc.clone(),
+        }
+    }
+
     pub fn lower_custom_type(&self, custom: &CustomTypeDef) -> DartCustomType {
         DartCustomType {
             name: custom.id.to_string(),
@@ -258,6 +296,12 @@ impl<'a> DartLowerer<'a> {
             .all_records()
             .map(|r| self.lower_record(r))
             .collect();
+        let enums = self
+            .ffi
+            .catalog
+            .all_enums()
+            .map(|e| self.lower_enum(e))
+            .collect();
 
         let native_functions = self
             .ffi
@@ -275,6 +319,7 @@ impl<'a> DartLowerer<'a> {
                 functions: native_functions,
             },
             records,
+            enums,
         }
     }
 }

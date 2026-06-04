@@ -23,6 +23,18 @@ pub struct RecordTemplate<'a> {
 }
 
 #[derive(Template)]
+#[template(path = "render_dart/enum_c_style.txt", escape = "none")]
+pub struct CStyleEnumTemplate<'a> {
+    pub enum_def: &'a super::DartEnum,
+}
+
+#[derive(Template)]
+#[template(path = "render_dart/enum_placeholder.txt", escape = "none")]
+pub struct EnumPlaceholderTemplate<'a> {
+    pub enum_def: &'a super::DartEnum,
+}
+
+#[derive(Template)]
 #[template(path = "render_dart/hook.build.dart.txt", escape = "none")]
 pub struct BuildHookTemplate<'a> {
     pub artifact_name: &'a str,
@@ -42,9 +54,9 @@ mod tests {
     use askama::Template;
 
     use super::super::plan::{
-        DartBlittableField, DartBlittableLayout, DartConstructor, DartConstructorKind,
-        DartFunction, DartFunctionParam, DartNativeFunction, DartNativeFunctionParam,
-        DartNativeType, DartRecord, DartRecordField, DartType,
+        DartBlittableField, DartBlittableLayout, DartConstructor, DartConstructorKind, DartEnum,
+        DartEnumKind, DartEnumVariant, DartFunction, DartFunctionParam, DartNativeFunction,
+        DartNativeFunctionParam, DartNativeType, DartRecord, DartRecordField, DartType,
     };
     use super::*;
     use crate::ir::{
@@ -199,6 +211,84 @@ mod tests {
             },
         ];
         let template = NativeFunctionsTemplate { cfuncs: &funcs };
+        insta::assert_snapshot!(template.render().unwrap());
+    }
+
+    fn cstyle_variant(name: &str, discriminant: i128) -> DartEnumVariant {
+        DartEnumVariant {
+            name: name.to_string(),
+            discriminant,
+            doc: None,
+        }
+    }
+
+    #[test]
+    fn snapshot_enum_c_style_i32_tag() {
+        let enum_def = DartEnum {
+            name: "Priority".to_string(),
+            kind: DartEnumKind::CStyle,
+            tag_type: PrimitiveType::I32,
+            variants: vec![
+                cstyle_variant("low", 0),
+                cstyle_variant("medium", 1),
+                cstyle_variant("high", 2),
+                cstyle_variant("critical", 3),
+            ],
+            doc: None,
+        };
+        let template = CStyleEnumTemplate {
+            enum_def: &enum_def,
+        };
+        insta::assert_snapshot!(template.render().unwrap());
+    }
+
+    #[test]
+    fn snapshot_enum_c_style_non_ordinal_u16_tag() {
+        // Discriminants that diverge from ordinals, with a non-i32 tag type.
+        let enum_def = DartEnum {
+            name: "HttpCode".to_string(),
+            kind: DartEnumKind::CStyle,
+            tag_type: PrimitiveType::U16,
+            variants: vec![
+                cstyle_variant("ok", 200),
+                cstyle_variant("notFound", 404),
+                cstyle_variant("serverError", 500),
+            ],
+            doc: None,
+        };
+        let template = CStyleEnumTemplate {
+            enum_def: &enum_def,
+        };
+        insta::assert_snapshot!(template.render().unwrap());
+    }
+
+    #[test]
+    fn snapshot_enum_placeholder_data() {
+        let enum_def = DartEnum {
+            name: "Shape".to_string(),
+            kind: DartEnumKind::Sealed,
+            tag_type: PrimitiveType::I32,
+            variants: vec![],
+            doc: None,
+        };
+        let template = EnumPlaceholderTemplate {
+            enum_def: &enum_def,
+        };
+        insta::assert_snapshot!(template.render().unwrap());
+    }
+
+    #[test]
+    fn snapshot_enum_placeholder_error() {
+        let enum_def = DartEnum {
+            name: "ComputeError".to_string(),
+            kind: DartEnumKind::Error,
+            tag_type: PrimitiveType::I32,
+            variants: vec![],
+            doc: None,
+        };
+        let template = EnumPlaceholderTemplate {
+            enum_def: &enum_def,
+        };
         insta::assert_snapshot!(template.render().unwrap());
     }
 }

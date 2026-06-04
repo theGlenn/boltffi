@@ -1,0 +1,23 @@
+---
+source: boltffi_bindgen/src/render/dart/templates.rs
+assertion_line: 277
+expression: template.render().unwrap()
+---
+// TODO(boltffi/dart): Shape is a data-carrying enum.
+// Full sealed-class codegen is not yet implemented (Phase C.2); this is a
+// placeholder so references to Shape compile. Calls will throw at runtime.
+final class Shape {
+  Shape._();
+
+  static Shape decode(_$$WireReader _p$reader) {
+    throw UnimplementedError(
+      "boltffi/dart: Shape decode is not yet implemented",
+    );
+  }
+
+  void _m$wireEncode(_$$WireWriter _p$writer) {
+    throw UnimplementedError(
+      "boltffi/dart: Shape encode is not yet implemented",
+    );
+  }
+}

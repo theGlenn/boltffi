@@ -1,0 +1,26 @@
+---
+source: boltffi_bindgen/src/render/dart/templates.rs
+assertion_line: 242
+expression: template.render().unwrap()
+---
+enum Priority {
+  low(0),
+  medium(1),
+  high(2),
+  critical(3);
+
+  const Priority(this.value);
+
+  final int value;
+
+  static Priority fromValue(int value) {
+    return Priority.values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw _$$FFIException(-1, "Unknown Priority value: $value"),
+    );
+  }
+
+  void _m$wireEncode(_$$WireWriter _p$writer) {
+    _p$writer.writeI32(value);
+  }
+}

@@ -1,0 +1,18 @@
+// TODO(boltffi/dart): {{ enum_def.name }} is {% if enum_def.is_error() %}an error{% else %}a data-carrying{% endif %} enum.
+// Full sealed-class codegen is not yet implemented (Phase C.2); this is a
+// placeholder so references to {{ enum_def.name }} compile. Calls will throw at runtime.
+final class {{ enum_def.name }}{% if enum_def.is_error() %} implements Exception{% endif %} {
+  {{ enum_def.name }}._();
+
+  static {{ enum_def.name }} decode(_$$WireReader _p$reader) {
+    throw UnimplementedError(
+      "boltffi/dart: {{ enum_def.name }} decode is not yet implemented",
+    );
+  }
+
+  void _m$wireEncode(_$$WireWriter _p$writer) {
+    throw UnimplementedError(
+      "boltffi/dart: {{ enum_def.name }} encode is not yet implemented",
+    );
+  }
+}

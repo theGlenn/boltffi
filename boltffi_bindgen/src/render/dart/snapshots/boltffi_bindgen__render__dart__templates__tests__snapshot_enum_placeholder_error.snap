@@ -1,0 +1,23 @@
+---
+source: boltffi_bindgen/src/render/dart/templates.rs
+assertion_line: 292
+expression: template.render().unwrap()
+---
+// TODO(boltffi/dart): ComputeError is an error enum.
+// Full sealed-class codegen is not yet implemented (Phase C.2); this is a
+// placeholder so references to ComputeError compile. Calls will throw at runtime.
+final class ComputeError implements Exception {
+  ComputeError._();
+
+  static ComputeError decode(_$$WireReader _p$reader) {
+    throw UnimplementedError(
+      "boltffi/dart: ComputeError decode is not yet implemented",
+    );
+  }
+
+  void _m$wireEncode(_$$WireWriter _p$writer) {
+    throw UnimplementedError(
+      "boltffi/dart: ComputeError encode is not yet implemented",
+    );
+  }
+}

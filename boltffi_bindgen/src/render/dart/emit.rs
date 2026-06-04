@@ -6,10 +6,10 @@ use crate::{
         VecLayout, WriteOp, WriteSeq,
     },
     render::dart::{
-        DartLibrary, NamingConvention,
+        DartEnumKind, DartLibrary, NamingConvention,
         templates::{
-            BuildHookTemplate, CustomTypesTemplate, NativeFunctionsTemplate, PreludeTemplate,
-            PubspecTemplate, RecordTemplate,
+            BuildHookTemplate, CStyleEnumTemplate, CustomTypesTemplate, EnumPlaceholderTemplate,
+            NativeFunctionsTemplate, PreludeTemplate, PubspecTemplate, RecordTemplate,
         },
     },
 };
@@ -41,6 +41,25 @@ impl DartEmitter {
         for r in &library.records {
             output.push_str("\n\n");
             output.push_str(RecordTemplate { record: r }.render().unwrap().as_str());
+        }
+
+        for e in &library.enums {
+            output.push_str("\n\n");
+            match e.kind {
+                DartEnumKind::CStyle => {
+                    output.push_str(
+                        CStyleEnumTemplate { enum_def: e }.render().unwrap().as_str(),
+                    );
+                }
+                DartEnumKind::Sealed | DartEnumKind::Error => {
+                    output.push_str(
+                        EnumPlaceholderTemplate { enum_def: e }
+                            .render()
+                            .unwrap()
+                            .as_str(),
+                    );
+                }
+            }
         }
 
         output.push_str("\n\n");

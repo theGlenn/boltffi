@@ -1,0 +1,25 @@
+---
+source: boltffi_bindgen/src/render/dart/templates.rs
+assertion_line: 262
+expression: template.render().unwrap()
+---
+enum HttpCode {
+  ok(200),
+  notFound(404),
+  serverError(500);
+
+  const HttpCode(this.value);
+
+  final int value;
+
+  static HttpCode fromValue(int value) {
+    return HttpCode.values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw _$$FFIException(-1, "Unknown HttpCode value: $value"),
+    );
+  }
+
+  void _m$wireEncode(_$$WireWriter _p$writer) {
+    _p$writer.writeU16(value);
+  }
+}
