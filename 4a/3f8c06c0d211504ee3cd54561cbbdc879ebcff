@@ -1,0 +1,36 @@
+boltffi_bindgen/src/render/dart/snapshots/boltffi_bindgen__render__dart__templates__tests__snapshot_wire_functions_scalar_and_enum.snap
+  ai_agent 1-17
+boltffi_bindgen/src/render/dart/plan.rs
+  s_f37dd148658949::t_329a2cd9dd1206 418-467,474
+boltffi_bindgen/src/render/dart/templates/render_dart/wire_functions.txt
+  s_f37dd148658949::t_5dbd6960fef44b 1-12
+examples/platforms/dart/test/demo_test.dart
+  s_f37dd148658949::t_4dbb19945b022b 51-85
+boltffi_bindgen/src/render/dart/emit.rs
+  s_f37dd148658949::t_eea2e3ea2c9d0d 76-87
+  s_f37dd148658949::t_b7b0d6dde7d2af 13
+boltffi_bindgen/src/render/dart/templates.rs
+  s_f37dd148658949::t_35192143a9bbcf 66
+  s_f37dd148658949::t_d2de839afe9770 301-352
+  s_f37dd148658949::t_ae7807d62a1b4a 20-24
+boltffi_bindgen/src/render/dart/lower.rs
+  s_f37dd148658949::t_5d15996adf98ab 3-6,12-13
+  s_f37dd148658949::t_d7fadfad5296ec 395-401,409
+  s_f37dd148658949::t_521b72be18fb5f 281-357
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.3",
+  "base_commit_sha": "4a3f8c06c0d211504ee3cd54561cbbdc879ebcff",
+  "prompts": {},
+  "sessions": {
+    "s_f37dd148658949": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "972d58f6-a417-42f5-9312-dddd746e9aa1",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Glenn Sonna <kenpachi.os@gmail.com>"
+    }
+  }
+}
