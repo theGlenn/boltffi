@@ -1,14 +1,16 @@
 use crate::{
     ir::{
-        AbiCall, AbiContract, AbiParam, AbiRecord, AbiType, CallId, ConstructorDef, CustomTypeDef,
-        EnumDef, EnumRepr, FfiContract, FieldDef, FieldName, FieldReadOp, FunctionId, MethodDef,
-        OffsetExpr, ParamDef, ReadOp, ReadSeq, RecordDef, RecordId, WriteOp, WriteSeq,
+        AbiCall, AbiContract, AbiParam, AbiRecord, AbiType, CallId, CallMode, ConstructorDef,
+        CustomTypeDef, EnumDef, EnumRepr, ErrorTransport, FfiContract, FieldDef, FieldName,
+        FieldReadOp, FunctionDef, FunctionId, MethodDef, OffsetExpr, ParamDef, ParamRole, ReadOp,
+        ReadSeq, RecordDef, RecordId, ScalarOrigin, Transport, WriteOp, WriteSeq,
     },
     render::dart::{
         DartBlittableField, DartBlittableLayout, DartConstructor, DartConstructorKind,
         DartCustomType, DartEnum, DartEnumKind, DartEnumVariant, DartFunction, DartFunctionParam,
         DartLibrary, DartNative, DartNativeFunction, DartNativeFunctionParam, DartNativeType,
-        DartRecord, DartRecordField, DartType, NamingConvention,
+        DartRecord, DartRecordField, DartType, DartWireFunction, DartWireFunctionParam,
+        DartWireReturn, NamingConvention,
     },
 };
 
@@ -276,6 +278,83 @@ impl<'a> DartLowerer<'a> {
         }
     }
 
+    /// Resolves a C-style enum scalar to its public Dart type name, or `None`
+    /// if the enum is an error enum or a data-carrying enum (those are emitted
+    /// as placeholders and are not yet callable through a scalar wrapper).
+    fn cstyle_enum_dart_name(&self, enum_id: &crate::ir::EnumId) -> Option<String> {
+        let enum_def = self.ffi.catalog.resolve_enum(enum_id)?;
+        if enum_def.is_error || !matches!(enum_def.repr, EnumRepr::CStyle { .. }) {
+            return None;
+        }
+        Some(NamingConvention::class_name(enum_id.as_str()))
+    }
+
+    /// Lowers a top-level function into a public Dart wrapper, when it falls
+    /// within the Phase D.1 scalar-only subset. Returns `None` for anything
+    /// async, fallible, or touching non-scalar transports — those stay
+    /// reachable only via the private `_$$Native` class for now.
+    fn lower_wire_function(&self, func: &FunctionDef) -> Option<DartWireFunction> {
+        let abi_call = self.abi_call_for_function(&func.id);
+
+        if !matches!(abi_call.mode, CallMode::Sync) {
+            return None;
+        }
+        if !matches!(abi_call.error, ErrorTransport::None) {
+            return None;
+        }
+
+        let mut params = Vec::with_capacity(abi_call.params.len());
+        for param in &abi_call.params {
+            let ParamRole::Input {
+                transport: Transport::Scalar(origin),
+                ..
+            } = &param.role
+            else {
+                return None;
+            };
+            let name = NamingConvention::param_name(param.name.as_str());
+            let (dart_type, native_arg) = match origin {
+                ScalarOrigin::Primitive(primitive) => {
+                    (super::emit::primitive_dart_type(*primitive), name.clone())
+                }
+                ScalarOrigin::CStyleEnum { enum_id, .. } => {
+                    let dart_type = self.cstyle_enum_dart_name(enum_id)?;
+                    (dart_type, format!("{name}.value"))
+                }
+            };
+            params.push(DartWireFunctionParam {
+                name,
+                dart_type,
+                native_arg,
+            });
+        }
+
+        let ret = match &abi_call.returns.transport {
+            None => DartWireReturn::Void,
+            Some(Transport::Scalar(origin)) => match origin {
+                ScalarOrigin::Primitive(primitive) => DartWireReturn::Scalar {
+                    dart_type: super::emit::primitive_dart_type(*primitive),
+                },
+                ScalarOrigin::CStyleEnum { enum_id, .. } => {
+                    let dart_type = self.cstyle_enum_dart_name(enum_id)?;
+                    DartWireReturn::EnumScalar {
+                        enum_name: dart_type.clone(),
+                        dart_type,
+                    }
+                }
+            },
+            Some(_) => return None,
+        };
+
+        Some(DartWireFunction {
+            name: NamingConvention::function_name(func.id.as_str()),
+            ffi_name: abi_call.symbol.to_string(),
+            params,
+            ret,
+            doc: func.doc.clone(),
+        })
+    }
+
     pub fn lower_custom_type(&self, custom: &CustomTypeDef) -> DartCustomType {
         DartCustomType {
             name: custom.id.to_string(),
@@ -313,6 +392,13 @@ impl<'a> DartLowerer<'a> {
             })
             .collect();
 
+        let wire_functions = self
+            .ffi
+            .functions
+            .iter()
+            .filter_map(|f| self.lower_wire_function(f))
+            .collect();
+
         DartLibrary {
             custom_types,
             native: DartNative {
@@ -320,6 +406,7 @@ impl<'a> DartLowerer<'a> {
             },
             records,
             enums,
+            wire_functions,
         }
     }
 }

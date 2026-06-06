@@ -17,6 +17,12 @@ pub struct NativeFunctionsTemplate<'a> {
 }
 
 #[derive(Template)]
+#[template(path = "render_dart/wire_functions.txt", escape = "none")]
+pub struct WireFunctionsTemplate<'a> {
+    pub funcs: &'a [super::DartWireFunction],
+}
+
+#[derive(Template)]
 #[template(path = "render_dart/record.txt", escape = "none")]
 pub struct RecordTemplate<'a> {
     pub record: &'a super::DartRecord,
@@ -57,6 +63,7 @@ mod tests {
         DartBlittableField, DartBlittableLayout, DartConstructor, DartConstructorKind, DartEnum,
         DartEnumKind, DartEnumVariant, DartFunction, DartFunctionParam, DartNativeFunction,
         DartNativeFunctionParam, DartNativeType, DartRecord, DartRecordField, DartType,
+        DartWireFunction, DartWireFunctionParam, DartWireReturn,
     };
     use super::*;
     use crate::ir::{
@@ -289,6 +296,58 @@ mod tests {
         let template = EnumPlaceholderTemplate {
             enum_def: &enum_def,
         };
+        insta::assert_snapshot!(template.render().unwrap());
+    }
+
+    #[test]
+    fn snapshot_wire_functions_scalar_and_enum() {
+        let funcs = vec![
+            // primitive in / primitive out
+            DartWireFunction {
+                name: "add".to_string(),
+                ffi_name: "boltffi_add".to_string(),
+                params: vec![
+                    DartWireFunctionParam {
+                        name: "a".to_string(),
+                        dart_type: "int".to_string(),
+                        native_arg: "a".to_string(),
+                    },
+                    DartWireFunctionParam {
+                        name: "b".to_string(),
+                        dart_type: "int".to_string(),
+                        native_arg: "b".to_string(),
+                    },
+                ],
+                ret: DartWireReturn::Scalar {
+                    dart_type: "int".to_string(),
+                },
+                doc: None,
+            },
+            // void
+            DartWireFunction {
+                name: "noop".to_string(),
+                ffi_name: "boltffi_noop".to_string(),
+                params: vec![],
+                ret: DartWireReturn::Void,
+                doc: None,
+            },
+            // enum in / enum out
+            DartWireFunction {
+                name: "echoPriority".to_string(),
+                ffi_name: "boltffi_echo_priority".to_string(),
+                params: vec![DartWireFunctionParam {
+                    name: "p".to_string(),
+                    dart_type: "Priority".to_string(),
+                    native_arg: "p.value".to_string(),
+                }],
+                ret: DartWireReturn::EnumScalar {
+                    dart_type: "Priority".to_string(),
+                    enum_name: "Priority".to_string(),
+                },
+                doc: None,
+            },
+        ];
+        let template = WireFunctionsTemplate { funcs: &funcs };
         insta::assert_snapshot!(template.render().unwrap());
     }
 }

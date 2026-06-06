@@ -1,0 +1,17 @@
+---
+source: boltffi_bindgen/src/render/dart/templates.rs
+assertion_line: 351
+expression: template.render().unwrap()
+---
+
+int add(int a, int b) {
+  return _$$Native.boltffi_add(a, b);
+}
+
+void noop() {
+  _$$Native.boltffi_noop();
+}
+
+Priority echoPriority(Priority p) {
+  return Priority.fromValue(_$$Native.boltffi_echo_priority(p.value));
+}

@@ -415,10 +415,61 @@ impl DartEnum {
     }
 }
 
+/// A public top-level Dart function that wraps a native FFI call.
+///
+/// Phase D.1 only covers the scalar-in/scalar-out sync infallible subset:
+/// every parameter and the return are either a primitive or a C-style enum
+/// (passed as its integer tag). Functions touching strings, vecs, records,
+/// results, async, or callbacks are not yet wrapped and remain reachable only
+/// through the private `_$$Native` class.
+#[derive(Debug, Clone)]
+pub struct DartWireFunction {
+    pub name: String,
+    pub ffi_name: String,
+    pub params: Vec<DartWireFunctionParam>,
+    pub ret: DartWireReturn,
+    pub doc: Option<String>,
+}
+
+impl DartWireFunction {
+    pub fn native_call(&self) -> String {
+        let args = self
+            .params
+            .iter()
+            .map(|p| p.native_arg.clone())
+            .collect::<Vec<_>>()
+            .join(", ");
+        format!("_$$Native.{}({})", self.ffi_name, args)
+    }
+
+    pub fn return_type(&self) -> String {
+        match &self.ret {
+            DartWireReturn::Void => "void".to_string(),
+            DartWireReturn::Scalar { dart_type } => dart_type.clone(),
+            DartWireReturn::EnumScalar { dart_type, .. } => dart_type.clone(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct DartWireFunctionParam {
+    pub name: String,
+    pub dart_type: String,
+    pub native_arg: String,
+}
+
+#[derive(Debug, Clone)]
+pub enum DartWireReturn {
+    Void,
+    Scalar { dart_type: String },
+    EnumScalar { dart_type: String, enum_name: String },
+}
+
 #[derive(Debug, Clone)]
 pub struct DartLibrary {
     pub custom_types: Vec<DartCustomType>,
     pub native: DartNative,
     pub records: Vec<DartRecord>,
     pub enums: Vec<DartEnum>,
+    pub wire_functions: Vec<DartWireFunction>,
 }

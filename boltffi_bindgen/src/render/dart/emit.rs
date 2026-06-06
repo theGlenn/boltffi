@@ -10,6 +10,7 @@ use crate::{
         templates::{
             BuildHookTemplate, CStyleEnumTemplate, CustomTypesTemplate, EnumPlaceholderTemplate,
             NativeFunctionsTemplate, PreludeTemplate, PubspecTemplate, RecordTemplate,
+            WireFunctionsTemplate,
         },
     },
 };
@@ -71,6 +72,18 @@ impl DartEmitter {
             .unwrap()
             .as_str(),
         );
+
+        if !library.wire_functions.is_empty() {
+            output.push_str("\n\n");
+            output.push_str(
+                WireFunctionsTemplate {
+                    funcs: &library.wire_functions,
+                }
+                .render()
+                .unwrap()
+                .as_str(),
+            );
+        }
 
         DartPackage {
             pubspec: PubspecTemplate {

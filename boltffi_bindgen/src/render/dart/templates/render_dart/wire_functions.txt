@@ -1,0 +1,12 @@
+{% for func in funcs %}
+{{ func.return_type() }} {{ func.name }}({% for param in func.params %}{{ param.dart_type }} {{ param.name }}{% if !loop.last %}, {% endif %}{% endfor %}) {
+{%- match func.ret %}
+{%- when super::DartWireReturn::Void %}
+  {{ func.native_call() }};
+{%- when super::DartWireReturn::Scalar { dart_type } %}
+  return {{ func.native_call() }};
+{%- when super::DartWireReturn::EnumScalar { dart_type, enum_name } %}
+  return {{ enum_name }}.fromValue({{ func.native_call() }});
+{%- endmatch %}
+}
+{% endfor %}

@@ -48,4 +48,39 @@ void main() {
       }
     });
   });
+
+  group('scalar function wrappers (native FFI)', () {
+    test('primitive in / primitive out', () {
+      expect(add(2, 3), 5);
+      expect(addI32(-4, 10), 6);
+      expect(multiply(1.5, 4.0), 6.0);
+      expect(echoBool(true), true);
+      expect(negateBool(true), false);
+      expect(echoI32(42), 42);
+      expect(echoF64(2.71828), 2.71828);
+    });
+
+    test('void function executes without throwing', () {
+      expect(noop, returnsNormally);
+    });
+
+    test('C-style enum in / enum out round-trips through native', () {
+      expect(echoPriority(Priority.high), Priority.high);
+      expect(echoLogLevel(LogLevel.warn), LogLevel.warn);
+      expect(echoHttpCode(HttpCode.notFound), HttpCode.notFound);
+      expect(echoSign(Sign.negative), Sign.negative);
+    });
+
+    test('enum in / primitive out reflects native logic', () {
+      expect(isHighPriority(Priority.critical), true);
+      expect(isHighPriority(Priority.low), false);
+      expect(shouldLog(LogLevel.error, LogLevel.info), true);
+      expect(shouldLog(LogLevel.trace, LogLevel.warn), false);
+    });
+
+    test('enum-returning constructors', () {
+      expect(httpCodeNotFound(), HttpCode.notFound);
+      expect(signNegative(), Sign.negative);
+    });
+  });
 }
